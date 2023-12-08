@@ -7,6 +7,8 @@ This Python program simulates the flocking behavior of birds 🐦 using the prin
 - **Alignment:** Birds align their direction with the average direction of their neighbors.
 - **Separation:** Birds avoid crowding together by adjusting their positions based on the distance to nearby birds.
 - **Speed Limit:** Birds have a maximum speed to control their movement.
+- **Behavior variation:** Birds have differents behavior for a better simulation.
+- **Reset position**: You can reset birds position without need to relaunch the programm.
 ## 🔖  Requirements
 - **Python 3.12 🐍**
 - **Pygame library**
@@ -30,6 +32,7 @@ pip install pygame)
 Install the required dependencies.
 Run the script using a Python interpreter.
 The Pygame window will open, displaying the flocking behavior of simulated birds.
+Press space bar to reset birds positions.
 Close the window to exit the simulation.
 ## 🛠️ Configuration
 You can adjust simulation parameters, such as the number of birds, speed limits, and factors influencing cohesion, alignment, and separation in the code.
