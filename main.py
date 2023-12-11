@@ -5,20 +5,21 @@ import math
 
 pygame.init()
 
-width, height = 1000, 700
+width, height = 700, 500
 bg_color = (255, 255, 255)
 bird_radius = 3
-num_birds = 100
+num_birds = 50
 speed_limit = 5
-cohesion_factor = 0.01
+cohesion_factor = 0.015
 alignment_factor = 0.1
 separation_factor = 10
 avoidance_distance = 75
 max_link_distance = 30
 show_links_flag = False
 show_concentration_flag = False
+show_historic_flag = False
 frame = 60
-grid_size = 40
+grid_size = 20
 
 screen = pygame.display.set_mode((width, height), pygame.SRCALPHA)
 
@@ -32,9 +33,16 @@ class Bird:
         self.speed = random.uniform(1, speed_limit)
         self.last_reset_time = 0
         self.links = []
+        self.history_limit = 100
+        self.history = []
 
     def add_link(self, other_bird):
         self.links.append(other_bird)
+
+    def add_to_history(self):
+        self.history.append((self.x, self.y))
+        if len(self.history) > self.history_limit:
+            self.history = self.history[-self.history_limit:]
 
     def clear_links(self):
         self.links = []
@@ -62,6 +70,21 @@ class Bird:
         self.angle = max(-speed_limit, min(speed_limit, self.angle))
         self.x += math.cos(self.angle) * speed_limit
         self.y += math.sin(self.angle) * speed_limit
+        self.history.append((self.x, self.y))
+        if self.x < 0 or self.x >= width:
+            self.add_to_history()
+            self.x = (self.x + width) % width
+            self.history = []
+
+        if self.y < 0 or self.y >= height:
+            self.add_to_history()
+            self.y = (self.y + height) % height
+            self.history = []
+
+        self.add_to_history()
+    def show_historic(self):
+        if len(self.history) > 1:
+            pygame.draw.lines(screen, self.color, False, self.history, 2)
 
 
 def calculate_distance(bird1, bird2):
@@ -94,6 +117,7 @@ def reset_positions(birds):
     for bird in birds:
         bird.x = width / 2
         bird.y = height / 2
+        bird.history = []
         bird.color = (207, random.randint(110, 175), random.randint(20, 100))
 
 
@@ -102,9 +126,12 @@ def change_colors(birds):
         bird.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
-def show_link(birds):
+def show_historic(birds):
     for bird in birds:
-        pass
+        for i in range(1, len(bird.history)):
+            x1, y1 = bird.history[i - 1]
+            x2, y2 = bird.history[i]
+            pygame.draw.line(screen, bird.color, (int(x1), int(y1)), (int(x2), int(y2)), 1)
 
 
 def show_grid(birds, grid_size):
@@ -158,6 +185,9 @@ while True:
             if event.key == pygame.K_KP2:  ##show concentration area birds
                 show_concentration_flag = not show_concentration_flag
 
+            if event.key == pygame.K_KP3:  ##show bird position historic
+                show_historic_flag = not show_historic_flag
+
         elapsed_time = pygame.time.get_ticks()
 
     if event.type == pygame.MOUSEBUTTONDOWN:  ##add birds on click
@@ -176,7 +206,8 @@ while True:
 
     if show_concentration_flag:
         show_grid(birds, grid_size)
-
+    if show_historic_flag:
+        show_historic(birds)
     for bird in birds:
         pygame.draw.circle(screen, bird.color, (int(bird.x), int(bird.y)), bird_radius)
 
