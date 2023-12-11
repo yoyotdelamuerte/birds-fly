@@ -38,6 +38,7 @@ Close the window to exit the simulation.
 ## 🛠️ Configuration
 You can adjust simulation parameters, such as the number of birds, speed limits, and factors influencing cohesion, alignment, and separation in the code.
 ## 🚙 Controls
+Press space bar to reset birds positions.
 Close the Pygame window to exit the simulation.
 ## 🌱 Acknowledgments
 This simulation is inspired by the natural flocking behavior observed in birds and other animals.
