@@ -18,7 +18,7 @@ This Python program simulates the flocking behavior of birds 🐦 using the prin
 - **Python 3.12 🐍**
 - **Pygame library**
 ```bash
-pip install pygame)
+pip install pygame
 ```
 ## 👤 Usage
 
