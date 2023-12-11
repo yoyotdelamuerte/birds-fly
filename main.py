@@ -18,7 +18,7 @@ max_link_distance = 30
 show_links_flag = False
 show_concentration_flag = False
 frame = 60
-grid_size = 20
+grid_size = 40
 
 screen = pygame.display.set_mode((width, height), pygame.SRCALPHA)
 
@@ -94,6 +94,7 @@ def reset_positions(birds):
     for bird in birds:
         bird.x = width / 2
         bird.y = height / 2
+        bird.color = (207, random.randint(110, 175), random.randint(20, 100))
 
 
 def change_colors(birds):
@@ -105,6 +106,38 @@ def show_link(birds):
     for bird in birds:
         pass
 
+
+def show_grid(birds, grid_size):
+    concentration_grid = [[0 for _ in range(width // grid_size)] for _ in range(height // grid_size)]
+
+    for bird in birds:
+        x, y = int(bird.x) // grid_size, int(bird.y) // grid_size
+        x = max(0, min(x, len(concentration_grid[0]) - 1))
+        y = max(0, min(y, len(concentration_grid) - 1))
+        concentration_grid[y][x] += 1
+    max_concentration = max(max(row) for row in concentration_grid)
+
+    for y in range(len(concentration_grid)):
+        for x in range(len(concentration_grid[0])):
+            concentration = concentration_grid[y][x]
+
+            if max_concentration != 0:
+                color_intensity = int((concentration / max_concentration) * 255)
+            else:
+                color_intensity = 0
+
+            color_intensity = min(255, color_intensity)
+            color_hex = f"{255 - color_intensity:02X}{98 + color_intensity:02X}98"
+            color = tuple(int(color_hex[i:i + 2], 16) for i in (0, 2, 4))
+
+            pygame.draw.rect(screen, color, (x * grid_size, y * grid_size, grid_size, grid_size))
+
+            pygame.draw.line(screen, (200, 200, 200), (x * grid_size, y * grid_size),
+                             (x * grid_size + grid_size, y * grid_size), 1)
+            pygame.draw.line(screen, (200, 200, 200), (x * grid_size, y * grid_size),
+                             (x * grid_size, y * grid_size + grid_size), 1)
+            if concentration == 0:
+                pygame.draw.rect(screen, bg_color, (x * grid_size, y * grid_size, grid_size, grid_size))
 
 
 while True:
@@ -142,7 +175,8 @@ while True:
         show_links(birds, max_link_distance)
 
     if show_concentration_flag:
-        draw_grid()
+        show_grid(birds, grid_size)
+
     for bird in birds:
         pygame.draw.circle(screen, bird.color, (int(bird.x), int(bird.y)), bird_radius)
 
