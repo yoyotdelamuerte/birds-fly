@@ -13,7 +13,14 @@ speed_limit = 5
 cohesion_factor = 0.01
 alignment_factor = 0.1
 separation_factor = 10
-avoidance_distance = 100
+avoidance_distance = 75
+max_link_distance = 30
+show_links_flag = False
+show_concentration_flag = False
+frame = 60
+grid_size = 20
+
+screen = pygame.display.set_mode((width, height), pygame.SRCALPHA)
 
 
 class Bird:
@@ -23,7 +30,14 @@ class Bird:
         self.angle = random.uniform(0, 2 * math.pi)
         self.color = (207, random.randint(110, 175), random.randint(20, 100))
         self.speed = random.uniform(1, speed_limit)
+        self.last_reset_time = 0
+        self.links = []
 
+    def add_link(self, other_bird):
+        self.links.append(other_bird)
+
+    def clear_links(self):
+        self.links = []
 
     def move(self, birds):
 
@@ -37,7 +51,7 @@ class Bird:
 
         for bird in birds:
             distance = math.sqrt((self.x - bird.x) ** 2 + (self.y - bird.y) ** 2)
-            if distance < separation_factor and distance > 0:
+            if separation_factor > distance > 0:
                 angle_away = math.atan2(self.y - bird.y, self.x - bird.x)
                 self.angle += (angle_away - self.angle) * (1 / distance)
 
@@ -48,6 +62,22 @@ class Bird:
         self.angle = max(-speed_limit, min(speed_limit, self.angle))
         self.x += math.cos(self.angle) * speed_limit
         self.y += math.sin(self.angle) * speed_limit
+
+
+def calculate_distance(bird1, bird2):
+    return math.sqrt((bird1.x - bird2.x) ** 2 + (bird1.y - bird2.y) ** 2)
+
+
+def show_links(birds, max_distance):
+    for bird in birds:
+        for other_bird in birds:
+            if bird != other_bird:
+                distance = calculate_distance(bird, other_bird)
+                if distance < max_distance:
+                    color_intensity = int((max_distance - distance) / max_distance * 255)
+                    link_color = (255, color_intensity, color_intensity)
+                    pygame.draw.line(screen, link_color, (int(bird.x), int(bird.y)),
+                                     (int(other_bird.x), int(other_bird.y)), 1)
 
 
 screen = pygame.display.set_mode((width, height))
@@ -66,16 +96,40 @@ def reset_positions(birds):
         bird.y = height / 2
 
 
+def change_colors(birds):
+    for bird in birds:
+        bird.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+
+def show_link(birds):
+    for bird in birds:
+        pass
+
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            reset_positions(birds)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                add_bird(*event.pos)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:  ## reset birds positions
+                reset_positions(birds)
+
+            if event.key == pygame.K_KP0:  ##change birds colors
+                change_colors(birds)
+
+            if event.key == pygame.K_KP1:  ##show links between birds
+                show_links_flag = not show_links_flag
+
+            if event.key == pygame.K_KP2:  ##show concentration area birds
+                show_concentration_flag = not show_concentration_flag
+
+        elapsed_time = pygame.time.get_ticks()
+
+    if event.type == pygame.MOUSEBUTTONDOWN:  ##add birds on click
+        if event.button == 1:
+            add_bird(*event.pos)
 
     for bird in birds:
         bird.move(birds)
@@ -84,8 +138,13 @@ while True:
         bird.y = (bird.y + height) % height
 
     screen.fill(bg_color)
+    if show_links_flag:
+        show_links(birds, max_link_distance)
+
+    if show_concentration_flag:
+        draw_grid()
     for bird in birds:
         pygame.draw.circle(screen, bird.color, (int(bird.x), int(bird.y)), bird_radius)
 
     pygame.display.flip()
-    pygame.time.Clock().tick(60)
+    pygame.time.Clock().tick(frame)
