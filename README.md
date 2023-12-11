@@ -11,7 +11,8 @@ This Python program simulates the flocking behavior of birds 🐦 using the prin
 - **Reset position:** You can reset birds position without need to relaunch the programm.
 - **Add bird:** You can add bird when you click inside the windows.
 - **Show links between birds:** You can see each interactions between birds when they fly.
-- **Change birds colors:** You can randomly change birds colors.  
+- **Change birds colors:** You can randomly change birds colors.
+- **See birds concentration:** You can see birds concentration in each area.
 ## 🔖  Requirements
 - **Python 3.12 🐍**
 - **Pygame library**
@@ -42,6 +43,7 @@ You can adjust simulation parameters, such as the number of birds, speed limits,
 - **Press space bar to reset birds positions.**
 - **Press "0" on your numpad to change birds colors.**
 - **Press "1" on your numpad to see birds connections.**
+- **Press "2" on your numpad to see birds concentration.**
 - **Close the Pygame window to exit the simulation.**
 ## 🌱 Acknowledgments
 This simulation is inspired by the natural flocking behavior observed in birds and other animals.
